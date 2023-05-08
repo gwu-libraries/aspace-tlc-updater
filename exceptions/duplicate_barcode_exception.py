@@ -1,0 +1,2 @@
+class DuplicateBarcodeException(Exception):
+    pass

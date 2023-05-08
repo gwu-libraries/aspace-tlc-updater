@@ -1,0 +1,2 @@
+class MissingTLCException(Exception):
+    pass

@@ -2,10 +2,12 @@ BASE_URL = ""
 USERNAME = ""
 PASSWORD = ""
 REPOSITORY_ID = 2
+UPDATE_CSV = ""
 
 config = {
   'base_url': BASE_URL,
   'username': USERNAME,
   'password': PASSWORD,
-  'repository_id': REPOSITORY_ID
+  'repository_id': REPOSITORY_ID,
+  'update_csv': UPDATE_CSV
 }

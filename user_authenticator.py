@@ -11,7 +11,8 @@ class UserAuthenticator:
 
   def authenticate(self):
     response = requests.post(f"{self.base_url}/users/{self.user}/login",
-                      params={'password': self.password})
+                      params={'password': self.password},
+                      timeout = None)
     response.raise_for_status()
     session_id = response.json()["session"]
     return session_id
