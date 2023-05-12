@@ -1,6 +1,6 @@
 import requests
 from requests import HTTPError
-from top_container import TopContainer
+from top_container_tools.top_container import TopContainer
 from exceptions.duplicate_barcode_exception import DuplicateBarcodeException
 from exceptions.missing_tlc_exception import MissingTLCException
 

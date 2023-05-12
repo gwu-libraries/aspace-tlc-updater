@@ -1,35 +1,64 @@
 import pandas
-from user_authenticator import UserAuthenticator
-from top_container_updater import TopContainerUpdater
+import logging
+import sys
+from alive_progress import alive_bar
+import user_tools.user as user
+from user_tools.user_authenticator import UserAuthenticator
+from top_container_tools.top_container_updater import TopContainerUpdater
 from exceptions.duplicate_barcode_exception import DuplicateBarcodeException
 from exceptions.missing_tlc_exception import MissingTLCException
-from config import config
+from exceptions.failed_authentication_exception import FailedAuthException
+from config.config import config
 
-user_authenticator = UserAuthenticator(config)
-
-session_id = user_authenticator.authenticate()
-
-top_container_updater = TopContainerUpdater(config, session_id)
+logging.basicConfig(
+    format='%(levelname)s:%(asctime)s:%(message)s',
+    filename="logs/output.log",
+    level=logging.INFO
+)
 
 matches_csv = pandas.read_csv(config['update_csv'])
 
-for index,row in matches_csv.iterrows():
-    top_container = str(row["top_container"])
-    barcode = str(row["barcode"])
-    
-    try:
-        top_container_updater.update_top_container(
-            top_container_id=top_container, 
-            new_barcode=barcode
-            )
-        print(f"Updated Top Level Container {top_container} with Barcode {barcode}")
-    except MissingTLCException:
-        print(f"TLC not found for ID {top_container}")
-        with open("exception_logs/not_exist_error.txt", "a") as file:
-            file.write("\n")
-            file.write(top_container)
-    except DuplicateBarcodeException:
-        print(f"Duplicate Barcode Error for ID {top_container} and barcode {barcode}")
-        with open("exception_logs/unique_barcode_errors.txt", "a") as file:
-            file.write("\n")
-            file.write(top_container)
+user_authenticator = UserAuthenticator(config)
+
+try:
+    user = user_authenticator.authenticate()
+    session_id = user.session
+except FailedAuthException:
+    logging.exception("Authentication failed, check config.py values.")
+    sys.exit(1)
+
+top_container_updater = TopContainerUpdater(config, session_id)
+
+row_count = matches_csv.shape[0]
+
+missing_tlc_count = 0
+duplicate_barcode_count = 0
+successful_update_count = 0
+
+with alive_bar(row_count) as bar:
+    for index,row in matches_csv.iterrows():
+        top_container = str(row["top_container"])
+        barcode = str(row["barcode"])
+        
+        try:
+            top_container_updater.update_top_container(
+                top_container_id=top_container, 
+                new_barcode=barcode
+                )
+        except MissingTLCException:
+            logging.warning("TLC not found for Top Container ID %s", top_container)
+            missing_tlc_count += 1
+        except DuplicateBarcodeException:
+            logging.warning("Duplicate Barcode error for TLC ID %s and barcode %s", top_container, barcode)
+            duplicate_barcode_count += 1
+        else:
+            logging.info("Updated Top Level Container %s with Barcode %s", top_container, barcode)
+            successful_update_count += 1
+        bar()
+
+print(f"""
+Process completed
+{successful_update_count} successful updates 
+{duplicate_barcode_count} duplicate barcode errors 
+{missing_tlc_count} missing TLC errors
+""")
