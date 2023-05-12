@@ -1,5 +1,5 @@
 import requests
-from top_container_fetcher import TopContainerFetcher
+from top_container_tools.top_container_fetcher import TopContainerFetcher
 from exceptions.duplicate_barcode_exception import DuplicateBarcodeException
 from exceptions.missing_tlc_exception import MissingTLCException
 
