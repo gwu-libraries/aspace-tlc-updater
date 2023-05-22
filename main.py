@@ -47,9 +47,15 @@ with alive_bar(row_count) as bar:
                 )
         except MissingTLCException:
             logging.warning("TLC not found for Top Container ID %s", top_container)
+            with open("logs/missing_tlc_errors.txt", "a") as file:
+                file.write(f"Top Container: {top_container}")
+                file.write("\n")
             missing_tlc_count += 1
         except DuplicateBarcodeException:
             logging.warning("Duplicate Barcode error for TLC ID %s and barcode %s", top_container, barcode)
+            with open("logs/duplicate_barcode_errors.txt", "a") as file:
+                file.write(f"Top Container: {top_container}, Barcode: {barcode}")
+                file.write("\n")
             duplicate_barcode_count += 1
         else:
             logging.info("Updated Top Level Container %s with Barcode %s", top_container, barcode)
