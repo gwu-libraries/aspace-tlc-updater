@@ -164,4 +164,4 @@ update_csv.csv
 logs/duplicate_barcode_errors.txt
 logs/missing_tlc_errors.txt
 
-.DS_STORE
+.DS_Store
