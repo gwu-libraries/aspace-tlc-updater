@@ -21,6 +21,4 @@ class TopContainerUpdater:
                     timeout = None)
         response_json = response.json()
         if 'error' in response_json:
-            # import ipdb; ipdb.set_trace()
-            # if response_json['error']['barcode'][0] == 'A barcode must be unique within a repository':
             raise DuplicateBarcodeException
